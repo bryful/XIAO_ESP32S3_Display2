@@ -2,23 +2,27 @@
 #include <WiFi.h>
 #include <time.h>
 #include <vector>
-// #include "LGFX_XIAO_ESP32S3_SPI_ST7789.hpp"
+#include "LGFX_XIAO_ESP32S3_SPI_ST7789.hpp"
 //  #include "LGFX_XIAO_SPI_ST7735S.hpp"
-#include "LGFX_XIAO_ESP32S3_SPI_ST7789B.hpp"
+// #include "LGFX_XIAO_ESP32S3_SPI_ST7789B.hpp"
 #include "FsSerial.hpp"
 #include "FsWiFi.hpp"
 #include "FsUtils.hpp"
+#include "Face.hpp"
 // 準備したクラスのインスタンスを作成します。
-LGFX_XIAO_ESP32S3_SPI_ST7789B display;
+LGFX_XIAO_ESP32S3_SPI_ST7789 display;
 BrySerial srl;
 FsWifi fsWifi;
 
+Face face;
+
+static unsigned long _FaceMM = 0;
 static unsigned long mmTime = 0;
 
 void DisplayPrint(const char *str)
 {
   display.startWrite();
-  display.drawBmpFile(LittleFS, "/girl.bmp", 0, 0);
+  face.Update();
   display.setCursor(0, 20);
   display.setTextColor(TFT_WHITE);
   display.println(str);
@@ -33,11 +37,11 @@ void printLocalTime()
   if (fsWifi.UpdateTime())
   {
     display.startWrite();
-    display.drawBmpFile(LittleFS, "/girl.bmp", 0, 0);
+    face.Update();
     display.setTextColor(TFT_RED);
-    display.setCursor(20, 0);
+    display.setCursor(5, 0);
     display.println(WiFi.localIP().toString().c_str());
-    display.setCursor(20, 210);
+    display.setCursor(5, 200);
     display.println(&fsWifi.timeinfo, "%A, %B %d %Y %H:%M:%S");
     display.endWrite();
   }
@@ -127,12 +131,22 @@ void GetSerialCMD()
       }
     }
   }
-
+}
+// -----------------------------------------------------------------------------
+void NextFaceTime()
+{
+  unsigned long v;
+  if (face.EyeMode() >= EyeMode::EX1)
+  {
+    v = random(400, 1500);
+  }
   else
   {
-    // ExtPrintln("header:" + String(header) + " size:" + String(rsize) + " cnt:" + String(cnt));
+    v = random(500, 4000);
   }
+  _FaceMM = millis() + v;
 }
+
 // -----------------------------------------------------------------------------
 
 void setup()
@@ -141,17 +155,19 @@ void setup()
 
   display.init();
   display.setRotation(3); // 0:横向き, 1:縦向き, 2:横向き反転, 3:縦向き反転
-  // display.fillScreen(TFT_RED);
-  //display.setBrightness(255);
 
   LittleFS.begin();
-  display.drawBmpFile(LittleFS, "/girl.bmp", 0, 0);
+  face.Begin(&display);
+  face.ChangeFace();
+  face.Draw();
+  face.Update();
+
   display.setTextSize(2);
 
-  // display.drawBmpFile(LittleFS, "/girl.bmp", 0, 0);
-  mmTime = millis() + 1000;
-  DisplayPrint("WiFi connection started...");
+  DisplayPrint("WiFi Started...");
   fsWifi.Begin(); // WiFi接続を開始
+  mmTime = millis() + 1000;
+  NextFaceTime();
 }
 void loop()
 {
@@ -162,5 +178,10 @@ void loop()
   {
     mmTime = now + 1000;
     printLocalTime();
+  }
+  else if (now > _FaceMM)
+  {
+    face.DrawEyeBlink();
+    NextFaceTime();
   }
 }
