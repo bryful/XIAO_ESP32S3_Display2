@@ -163,7 +163,7 @@ private:
     void DrawHoho();
     void DrawEyeClose();
     void DrawEyeInt();
-
+    void DrawTemp();
     long FaceModeTable[11] = {
         EyeMode::CENTER,
         EyeMode::CENTER,
@@ -178,6 +178,8 @@ private:
         EyeMode::EX3};
 
 public:
+    float humidity = 0;
+    float temperature = 0;
     Face();
     ~Face();
     void Begin(lgfx::LGFX_Device *d);

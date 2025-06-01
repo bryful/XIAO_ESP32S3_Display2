@@ -2,6 +2,8 @@
 #include <WiFi.h>
 #include <time.h>
 #include <vector>
+#include "DHTesp.h"
+
 #include "LGFX_XIAO_ESP32S3_SPI_ST7789.hpp"
 //  #include "LGFX_XIAO_SPI_ST7735S.hpp"
 // #include "LGFX_XIAO_ESP32S3_SPI_ST7789B.hpp"
@@ -16,6 +18,11 @@ FsWifi fsWifi;
 
 Face face;
 
+#define DHTPIN 8
+#define DHTTYPE DHT11
+
+// Initialize DHT sensor.
+DHTesp dht;
 static unsigned long _FaceMM = 0;
 static unsigned long mmTime = 0;
 
@@ -23,9 +30,11 @@ void DisplayPrint(const char *str)
 {
   display.startWrite();
   face.Update();
+  display.setTextSize(2);
   display.setCursor(0, 20);
   display.setTextColor(TFT_WHITE);
   display.println(str);
+
   display.endWrite();
 }
 
@@ -38,11 +47,13 @@ void printLocalTime()
   {
     display.startWrite();
     face.Update();
+    display.setTextSize(2);
     display.setTextColor(TFT_RED);
     display.setCursor(5, 0);
     display.println(WiFi.localIP().toString().c_str());
     display.setCursor(5, 200);
     display.println(&fsWifi.timeinfo, "%A, %B %d %Y %H:%M:%S");
+
     display.endWrite();
   }
 }
@@ -168,6 +179,9 @@ void setup()
   fsWifi.Begin(); // WiFi接続を開始
   mmTime = millis() + 1000;
   NextFaceTime();
+  dht.setup(8, DHTesp::DHT11); // Connect DHT sensor to GPIO 17
+  face.humidity = dht.getHumidity();
+  face.temperature = dht.getTemperature();
 }
 void loop()
 {
@@ -181,7 +195,10 @@ void loop()
   }
   else if (now > _FaceMM)
   {
+    face.humidity = dht.getHumidity();
+    face.temperature = dht.getTemperature();
     face.DrawEyeBlink();
+
     NextFaceTime();
   }
 }

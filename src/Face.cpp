@@ -7,7 +7,15 @@ Face::Face()
     Comp = nullptr;
     _SkinColor = 0xFF53;                           // 肌色
     _SkinColor = lgfx::color565(0xE1, 0xA9, 0x90); // ピンク色に変更
+    if (DisplayWidth == 320)
+    {
+        _EyeRX += 10;
+        _EyeEXRX += 10;
+        _MayuRX += 10;
+        _HohoRX += 10;
+    }
 }
+
 Face::~Face()
 {
     if (_isSetup == true)
@@ -217,6 +225,7 @@ void Face::Draw()
     DrawHoho();
     DrawMouth();
     DrawEye();
+    DrawTemp();
 }
 void Face::DrawHoho()
 {
@@ -325,6 +334,7 @@ void Face::DrawEyeBlink()
     DrawHoho();
     DrawMouth();
     DrawEyeClose();
+    DrawTemp();
     Update();
     delay(50);
 
@@ -333,11 +343,27 @@ void Face::DrawEyeBlink()
         DrawHoho();
         DrawMouth();
         DrawEyeInt();
+    DrawTemp();
         Update();
         delay(50);
     }
     DrawHoho();
     DrawMouth();
     DrawEye();
+    DrawTemp();
     Update();
+}
+void Face::DrawTemp()
+{
+    if (_isSetup == false)
+        return;
+    if ((temperature > 0) && (humidity > 0))
+    {
+        Comp->setTextSize(4);
+        Comp->setTextColor(FacePallet::Green);
+        Comp->setCursor(20, 80);
+        Comp->printf("t:%1.2f", temperature);
+        Comp->setCursor(20, 110);
+        Comp->printf("h:%1.2f", humidity);
+    }
 }
