@@ -26,6 +26,19 @@ public:
     {
         return (WiFi.status() == WL_CONNECTED);
     }
+    String ipstr() { return WiFi.localIP().toString(); };
+    String tmstr()
+    {
+        char buf[100];
+        sprintf(buf, "%04d/%02d/%02d %02d:%02d:%02d",
+                timeinfo.tm_year + 1900,
+                timeinfo.tm_mon + 1,
+                timeinfo.tm_mday,
+                timeinfo.tm_hour,
+                timeinfo.tm_min,
+                timeinfo.tm_sec);
+        return String((const char *)buf);
+    }
     bool Begin();
     bool Begin(const char *ssid, const char *password);
     bool GetNtp();

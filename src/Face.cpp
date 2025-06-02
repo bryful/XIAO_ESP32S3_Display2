@@ -215,6 +215,23 @@ void Face::Update()
     }
     Comp->pushSprite(0, 0);
 }
+void Face::DrawInfo()
+{
+    if (ipstr != "")
+    {
+        Comp->setCursor(5, 2);
+        Comp->setTextSize(2);
+        Comp->setTextColor(FacePallet::Green);
+        Comp->print(ipstr.c_str());
+    }
+    if (tmStr != "")
+    {
+        Comp->setCursor(5, 220);
+        Comp->setTextSize(2);
+        Comp->setTextColor(FacePallet::Red);
+        Comp->print(tmStr.c_str());
+    }
+}
 
 void Face::Draw()
 {
@@ -225,7 +242,7 @@ void Face::Draw()
     DrawHoho();
     DrawMouth();
     DrawEye();
-    DrawTemp();
+    DrawInfo();
 }
 void Face::DrawHoho()
 {
@@ -334,7 +351,7 @@ void Face::DrawEyeBlink()
     DrawHoho();
     DrawMouth();
     DrawEyeClose();
-    DrawTemp();
+    DrawInfo();
     Update();
     delay(50);
 
@@ -343,14 +360,14 @@ void Face::DrawEyeBlink()
         DrawHoho();
         DrawMouth();
         DrawEyeInt();
-    DrawTemp();
+        DrawInfo();
         Update();
         delay(50);
     }
     DrawHoho();
     DrawMouth();
     DrawEye();
-    DrawTemp();
+    DrawInfo();
     Update();
 }
 void Face::DrawTemp()
