@@ -231,6 +231,13 @@ void Face::DrawInfo()
         Comp->setTextColor(FacePallet::Red);
         Comp->print(tmStr.c_str());
     }
+    Comp->setTextSize(4);
+    Comp->setTextColor(FacePallet::Red);
+
+    Comp->setCursor(25, 120);
+    Comp->printf("T:%1.2f\n", temperature);
+    Comp->setCursor(25, 160);
+    Comp->printf("H:%1.2f\n", humidity);
 }
 
 void Face::Draw()

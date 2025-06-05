@@ -184,6 +184,7 @@ public:
     float temperature = 0;
     String ipstr = "";
     String tmStr = "";
+    String dht = "";
     Face();
     ~Face();
     void Begin(lgfx::LGFX_Device *d);

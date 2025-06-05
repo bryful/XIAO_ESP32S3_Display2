@@ -3,7 +3,7 @@
 #include <Preferences.h>
 #include <time.h>
 #include <vector>
-// #include "DHTesp.h"
+#include "DHTesp.h"
 
 #include "LGFX_XIAO_ESP32S3_SPI_ST7789.hpp"
 //  #include "LGFX_XIAO_SPI_ST7735S.hpp"
@@ -21,13 +21,11 @@ Face face;
 Preferences pref;
 char AppID[] = "XIAO-ESP32S3-XXX\0";
 
-#define DHTPIN 8
-#define DHTTYPE DHT11
-
 // Initialize DHT sensor.
-// DHTesp dht;
+DHTesp dht;
 static unsigned long _FaceMM = 0;
 static unsigned long mmTime = 0;
+static unsigned long mmTemp = 0;
 
 void DisplayPrint(const char *str)
 {
@@ -229,25 +227,35 @@ void setup()
   face.ipstr = fsWifi.ipstr();
   face.tmStr = fsWifi.tmstr();
   mmTime = millis() + 1000;
+  mmTemp = millis() + 2000;
   NextFaceTime();
-  // dht.setup(8, DHTesp::DHT11); // Connect DHT sensor to GPIO 17
-  // face.humidity = dht.getHumidity();
-  // face.temperature = dht.getTemperature();
+  dht.setup(44, DHTesp::DHT11); // Connect DHT sensor to GPIO 17
+  face.humidity = dht.getHumidity();
+  face.temperature = dht.getTemperature();
+  face.dht = String(dht.getStatusString());
 }
 void loop()
 {
   unsigned long now = millis();
   GetSerialCMD();
 
-  if (now > mmTime)
+  if (now > mmTemp)
+  {
+    face.humidity = dht.getHumidity();
+    face.temperature = dht.getTemperature();
+    face.dht = String(dht.getStatusString());
+    Serial.println(dht.getStatusString());
+    mmTemp = millis() + 2000;
+    printLocalTime();
+  }
+  else if (now > mmTime)
   {
     mmTime = now + 1000;
     printLocalTime();
   }
   else if (now > _FaceMM)
   {
-    // face.humidity = dht.getHumidity();
-    // face.temperature = dht.getTemperature();
+
     face.DrawEyeBlink();
 
     NextFaceTime();
